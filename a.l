@@ -22,7 +22,7 @@ struct symbol *symbolTable = NULL;
 const char* keywords[] = {
     "int", "char", "if", "else", "while", "for", "main", 
     "begin", "end", "print", "scan", "program", 
-    "VarDecl", "inc", "dec", NULL 
+    "VarDecl", "inc", "dec", "to","do", NULL 
 };
 
 bool CheckKeyword(const char* str);
@@ -50,16 +50,16 @@ LETTER      [a-z]
 ID          {LETTER}({LETTER}|{DIGIT}|_)*
 CHAR        \'(\\?.)\'
 STRING      \"([^\"]*)\"
-OP          [\+ \- \* \/ %  <  > =]
+OP          [\+ \- \* \/ %]
 WS          [ \t\n]+
 COMMENT     \/\*([^*]|\*+[^*/])*\*+\/|\/\/.*
-DECIMAL     \([1-9][0-9]*,[ ]*10\)
+DECIMAL     \(([0]|[1-9][0-9]*),[ ]*10\)
 BINARY      \([0-1]+,[ ]*2\)
 OCTAL       \([0-7]+,[ ]*8\)
 VALID_TYPES (int|char)
 RELOP       (>=|<=|<>|=|<|>)
 INTEGER     {DECIMAL}|{BINARY}|{OCTAL}
-EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
+EXPR     {INTEGER}
 
 %%
 
@@ -73,7 +73,6 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
 "end"[ \t]+"program"              { 
     printf("TOKEN: KEYWORD: END\n");
     printf("TOKEN: KEYWORD program\n");
-    printf("TOKEN: SEPERATOR: :\n");
 }
 
 "begin"[ \t]+"VarDecl:"           { 
@@ -87,97 +86,54 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
     inVarDecl=0; 
     printf("TOKEN: KEYWORD: end \n");
     printf("TOKEN: KEYWORD: VarDecl \n");
-    printf("TOKEN: SEPERATOR: : \n");
 }
 
-"if"[ ]*"("                       { 
-    printf("TOKEN: IF_START\n");
-    inLoop++;
-}
-
-"then"[ ]*"begin"                 { printf("TOKEN: THEN_BEGIN\n"); }
-
-"else"[ ]*"begin"                 { 
-    if (inLoop > 0) {
-        printf("TOKEN: ELSE_BEGIN\n");
-    } else {
-        printf("ERROR: Unmatched else statement\n");
-    }
-}
-
-"end"[ ]*";"                      {
-    if (inLoop > 0) {
-        inLoop--;
-        printf("TOKEN: BLOCK_END\n");
-    } else {
-        printf("ERROR: Unmatched end statement\n");
-    }
-}
-
-"for"[ ]*{ID}[ ]*":="            {inLoop++; printf("TOKEN: FOR_START: %s\n", yytext); }
-"to"[ ]*{EXPR}                   { printf("TOKEN: TO: %s\n",yytext); }
-"inc"[ ]*{INTEGER}               { printf("TOKEN: INCREMENT: %s\n", yytext); }
-"dec"[ ]*{INTEGER}               { printf("TOKEN: DECREMENT: %s\n", yytext); }
-"do"[ ]*"begin"                  { printf("TOKEN: DO_BEGIN\n"); }
-
-"while"[ ]*"("                    { 
-    printf("TOKEN: WHILE_START\n");
-    inLoop++;
-}
 
 {RELOP}                           { printf("TOKEN: RELATIONAL_OPERATOR: %s\n", yytext); }
-"("                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: ( \n"); }
-","                               { if(inVarDecl) type = 1; printf("TOKEN: SEPERATOR: , \n"); }
-")"                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: ) \n"); }
-":="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-"+="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-"-="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-"*="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-"/="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-"%="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
-{ID}[ ]*(":="|"+="|"-="|"*="|"/="|"%=")[ ]*{EXPR}";" { 
-    printf("TOKEN: IDENTIFIER: %s\n", {ID});
-    // will have to do scan  along with logic if condition
-    //char id[100];
-    //sscanf(yytext, "%s", id);
-// int i = 0;
-// while (id[i] != ':' || id[i] != '+'|| id[i] != '-' || id[i] != '*' || id[i] != '%' ) { add this char to ID var
-    printf("TOKEN: ASSIGNMENT STATEMENT: %s\n",yytext);
-}
+"("                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: %s\n", yytext); }
+","                               { if(inVarDecl) type = 1; printf("TOKEN: SEPERATOR: %s\n", yytext); }
+")"                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: %s\n", yytext); }
+":="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+"+="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+"-="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+"*="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+"/="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+"%="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+
 {STRING}                          { printf("TOKEN: STRING: %s\n", yytext); }
 {CHAR}                            { printf("TOKEN: CHAR: %s\n", yytext); }
-{OP}                              { printf("TOKEN: OPERATOR: %s\n", yytext); }
-{INTEGER}                         { printf("TOKEN: INTEGER: %s\n", yytext); }
+{OP}                              { printf("TOKEN: ARITHMETIC OPERATOR: %s\n", yytext); }
+{INTEGER}                         { printf("TOKEN: INTEGER constant: %s\n", yytext); }
 {EXPR}                            { printf("TOKEN: EXPRESSION: %s\n", yytext); }
 {ID}                              { 
+                                    // printf("ID: %s\n", yytext);
                                     int underscoreCount = 0;
                                     for(int i = 0; yytext[i]; i++) {
                                         if(yytext[i] == '_') underscoreCount++;
                                     }
                                     
                                     if(underscoreCount > 1) {
-                                        printf("ERROR: Invalid identifier '%s' - more than one underscore\n", yytext);
+                                        printf("ERROR: Invalid identifier %s - more than one underscore\n", yytext);
                                     } else if(CheckKeyword(yytext)) {
-                                        if(type){
+                                        
                                             printf("TOKEN: KEYWORD %s\n",yytext);
-                                        }else{
-                                            printf("ERROR: Keyword '%s' used as identifier\n", yytext);
-                                        }
+                                        
                                     } else {
                                         if(inVarDecl) {
                                             struct symbol *s = lookupSymbol(yytext);
+                                            // printf("%s\n",yytext);
                                             if(s && s->isDefined) {
-                                                printf("ERROR: Variable '%s' already defined\n", yytext);
+                                                printf("ERROR: Identifier %s already defined\n", yytext);
                                             } else {
                                                 insertSymbol(yytext, NULL);
-                                                printf("TOKEN: IDENTIFIER '%s'\n", yytext);
+                                                printf("TOKEN: IDENTIFIER %s\n", yytext);
                                             }
                                         } else {
                                             struct symbol *s = lookupSymbol(yytext);
                                             if(!s) {
-                                                printf("ERROR: Undefined variable '%s'\n", yytext);
+                                                printf("ERROR: Undefined variable %s\n", yytext);
                                             } else {
-                                                printf("TOKEN: IDENTIFIER '%s'\n", yytext);
+                                                printf("TOKEN: IDENTIFIER %s\n", yytext);
                                             }
                                         }
                                     }
@@ -187,17 +143,17 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
 
 "print"[ ]*"("\".*\".*");"         {
     if(!checkPrintAndScan(yytext)) {
-        printf("ERROR: Invalid print statement format\n");
+        printf("TOKEN: Inalid Output Statement %s\n",yytext);
     }else{
-        printf("TOKEN: PRINT_STATEMENT: %s\n",yytext);
+        printf("TOKEN: Valid Output Statement %s\n",yytext);
     } 
 }
 
 "scan"[ ]*"("\".*\".*");"          {
     if(!checkPrintAndScan(yytext)) {
-        printf("ERROR: Invalid scan statement format\n");
+        printf("ERROR: Invalid Input statement \n");
     }else{
-        printf("TOKEN: SCAN_STATEMENT: %s\n",yytext);
+        printf("TOKEN: Valid Input Statement %s\n",yytext);
     } 
 }
 
@@ -214,8 +170,6 @@ int main() {
     fclose(infile);
     return 0;
 }
-
-/* Rest of the helper functions remain the same */
 
 int countArguments(char *str) {
     int count = 0;
@@ -265,12 +219,21 @@ int checkPrintAndScan(char* str){
     char* l = strrchr(str,'"');
     if(!f || !l || f==l)return 0;
     int atcount=0;
+    int comma_count = 0;
     for(int i=0;f[i];i++){
         if(f[i]=='@')atcount++;
+        if(f[i]==',')comma_count++;
     }
+
     int argCount = countArguments(str);
-    printf("argc %d\n", argCount);
-    printf("atc %d\n", atcount);
+    printf("argCount %d\n", argCount);
+    printf("comma_count %d\n", comma_count);
+    if(comma_count !=  atcount) {
+        // printf("ERROR: Invalid number of arguments in print/scan statement\n");
+        return 0;
+    }
+    // printf("argc %d\n", argCount);
+    // printf("atc %d\n", atcount);
     
     if(atcount>0 && argCount==0)return 0;
     return atcount == argCount;
@@ -290,5 +253,5 @@ void insertSymbol(char *name, char *type) {
     s->type = type ? strdup(type) : NULL;
     s->isDefined = 1;
     s->next = symbolTable;
-    symbolTable = s;
+        symbolTable = s;
 }
