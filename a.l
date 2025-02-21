@@ -140,6 +140,8 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
     // will have to do scan  along with logic if condition
     //char id[100];
     //sscanf(yytext, "%s", id);
+// int i = 0;
+// while (id[i] != ':' || id[i] != '+'|| id[i] != '-' || id[i] != '*' || id[i] != '%' ) { add this char to ID var
     printf("TOKEN: ASSIGNMENT STATEMENT: %s\n",yytext);
 }
 {STRING}                          { printf("TOKEN: STRING: %s\n", yytext); }
