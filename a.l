@@ -22,13 +22,14 @@ struct symbol *symbolTable = NULL;
 const char* keywords[] = {
     "int", "char", "if", "else", "while", "for", "main", 
     "begin", "end", "print", "scan", "program", 
-    "VarDecl", "inc", "dec", "to","do", NULL 
+    "VarDecl", "inc", "dec", "to","do","then", NULL 
 };
 
 bool CheckKeyword(const char* str);
 struct symbol* lookupSymbol(char *name);
 void insertSymbol(char *name, char *type);
-int checkPrintAndScan(char* str);
+int checkPrint(char* str);
+int checkScan(char* str);
 int validateForLoop(const char* str);
 
 int yywrap(void) {
@@ -104,6 +105,9 @@ EXPR     {INTEGER}
 {CHAR}                            { printf("TOKEN: CHAR: %s\n", yytext); }
 {OP}                              { printf("TOKEN: ARITHMETIC OPERATOR: %s\n", yytext); }
 {INTEGER}                         { printf("TOKEN: INTEGER constant: %s\n", yytext); }
+"("[ ]*{DIGIT}+","[ ]*{DIGIT}+")"  { 
+    printf("ERROR: invalid integer constant %s\n", yytext); 
+}
 {EXPR}                            { printf("TOKEN: EXPRESSION: %s\n", yytext); }
 {ID}                              { 
                                     // printf("ID: %s\n", yytext);
@@ -114,10 +118,12 @@ EXPR     {INTEGER}
                                     
                                     if(underscoreCount > 1) {
                                         printf("ERROR: Invalid identifier %s - more than one underscore\n", yytext);
-                                    } else if(CheckKeyword(yytext)) {
-                                        
-                                            printf("TOKEN: KEYWORD %s\n",yytext);
-                                        
+                                    } else if(!inVarDecl&&CheckKeyword(yytext)) {
+                                        printf("TOKEN: KEYWORD %s\n",yytext);
+                                    }else if(inVarDecl && type==0 && CheckKeyword(yytext)){
+                                        printf("ERROR: KEYWORD %s is used as an identifier\n",yytext);
+                                    }else if(inVarDecl && type==1 && CheckKeyword(yytext)){
+                                        printf("TOKEN: KEYWORD %s\n",yytext);
                                     } else {
                                         if(inVarDecl) {
                                             struct symbol *s = lookupSymbol(yytext);
@@ -130,11 +136,7 @@ EXPR     {INTEGER}
                                             }
                                         } else {
                                             struct symbol *s = lookupSymbol(yytext);
-                                            if(!s) {
-                                                printf("ERROR: Undefined variable %s\n", yytext);
-                                            } else {
-                                                printf("TOKEN: IDENTIFIER %s\n", yytext);
-                                            }
+                                            printf("TOKEN: IDENTIFIER %s\n", yytext);
                                         }
                                     }
                                 }
@@ -142,7 +144,7 @@ EXPR     {INTEGER}
 .                                  { printf("LEXICAL ERROR: Unexpected Character: %s\n", yytext); }
 
 "print"[ ]*"("\".*\".*");"         {
-    if(!checkPrintAndScan(yytext)) {
+    if(!checkPrint(yytext)) {
         printf("TOKEN: Inalid Output Statement %s\n",yytext);
     }else{
         printf("TOKEN: Valid Output Statement %s\n",yytext);
@@ -150,7 +152,7 @@ EXPR     {INTEGER}
 }
 
 "scan"[ ]*"("\".*\".*");"          {
-    if(!checkPrintAndScan(yytext)) {
+    if(!checkScan(yytext)) {
         printf("ERROR: Invalid Input statement \n");
     }else{
         printf("TOKEN: Valid Input Statement %s\n",yytext);
@@ -213,22 +215,29 @@ int countArguments(char *str) {
     
     return count;
 }
+//**********************************
+// check this again
+//**********************************
 
-int checkPrintAndScan(char* str){
+int checkScan(char* str){
     char* f = strchr(str,'"');
     char* l = strrchr(str,'"');
     if(!f || !l || f==l)return 0;
     int atcount=0;
     int comma_count = 0;
-    for(int i=0;f[i];i++){
-        if(f[i]=='@')atcount++;
-        if(f[i]==',')comma_count++;
+    char *ptr = f;
+    while (ptr!=l){
+        // printf("%c\n",*ptr);
+        if(*ptr=='@')atcount++;
+        if(*ptr==',')comma_count++;
+        ptr++;
     }
 
+    // printf("ehehhe");
     int argCount = countArguments(str);
-    printf("argCount %d\n", argCount);
-    printf("comma_count %d\n", comma_count);
-    if(comma_count !=  atcount) {
+    // printf("argCount %d\n", argCount);
+    // printf("comma_count %d\n", comma_count);
+    if(comma_count + 1 !=  atcount) {
         // printf("ERROR: Invalid number of arguments in print/scan statement\n");
         return 0;
     }
@@ -238,6 +247,30 @@ int checkPrintAndScan(char* str){
     if(atcount>0 && argCount==0)return 0;
     return atcount == argCount;
 }
+int checkPrint(char* str){
+    char* f = strchr(str,'"');
+    char* l = strrchr(str,'"');
+    if(!f || !l || f==l)return 0;
+    int atcount=0;
+    char *ptr = f;
+    while (ptr!=l){
+        // printf("%c\n",*ptr);
+        if(*ptr=='@')atcount++;
+        ptr++;
+    }
+
+    // printf("ehehhe");
+    int argCount = countArguments(str);
+    
+    if(atcount>0 && argCount==0)return 0;
+    return atcount == argCount;
+}
+
+
+
+
+
+
 
 struct symbol* lookupSymbol(char *name) {
     struct symbol *s;
