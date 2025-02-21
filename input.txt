@@ -1,18 +1,21 @@
 begin program:
 begin VarDecl:
 (num1, int);
+(print, char);
 (num2, int);
-(b, int)
+(sum_tem_123, int);
 end VarDecl
 num1:= (10, 2);
-scan("@", num1);
-b:=(20, 10);
-for a := (10, 8) to b+(10, 2) inc (1, 10) do
+if num1 > (20, 2) then
 begin
-print("The value of a = @", a);
-end;
-for a := a+(5, 8) dec b-(15, 10) do
-begin
-print("The value of a = @", a);
+num1 :=(1, 10);
+num2 -= (99, 8);
+print("num1 = @, num2 = @", num1, num2);
 end
+else
+begin
+num /=(10, 2);
+print("num1 = @, num2 = @", num1);
+end;
+num3 := num1 + num2;
 end program

@@ -65,10 +65,30 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
 
 {COMMENT}                         { }
 {WS}                              { }
-"begin"[ \t]+"program:"           { printf("TOKEN: BEGIN_PROGRAM\n"); }
-"end"[ \t]+"program"              { printf("TOKEN: END_PROGRAM\n"); }
-"begin"[ \t]+"VarDecl:"           { inVarDecl=1; printf("TOKEN: BEGIN_VARDECL\n"); }
-"end"[ \t]+"VarDecl"              { inVarDecl=0; printf("TOKEN: END_VARDECL\n"); }
+"begin"[ \t]+"program:"           { 
+    printf("TOKEN: KEYWORD: begin\n");
+    printf("TOKEN: KEYWORD: program\n");
+    printf("TOKEN: SEPERATOR: :\n");
+}
+"end"[ \t]+"program"              { 
+    printf("TOKEN: KEYWORD: END\n");
+    printf("TOKEN: KEYWORD program\n");
+    printf("TOKEN: SEPERATOR: :\n");
+}
+
+"begin"[ \t]+"VarDecl:"           { 
+    inVarDecl=1; 
+    printf("TOKEN: KEYWORD: begin \n");
+    printf("TOKEN: KEYWORD: VarDecl \n");
+    printf("TOKEN: SEPERATOR: : \n");
+}
+
+"end"[ \t]+"VarDecl"              { 
+    inVarDecl=0; 
+    printf("TOKEN: KEYWORD: end \n");
+    printf("TOKEN: KEYWORD: VarDecl \n");
+    printf("TOKEN: SEPERATOR: : \n");
+}
 
 "if"[ ]*"("                       { 
     printf("TOKEN: IF_START\n");
@@ -106,9 +126,9 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
 }
 
 {RELOP}                           { printf("TOKEN: RELATIONAL_OPERATOR: %s\n", yytext); }
-"("                               { if(inVarDecl) type = 0; printf("TOKEN: LEFT_PARENTHESIS\n"); }
-","                               { if(inVarDecl) type = 1; printf("TOKEN: COMMA\n"); }
-")"                               { if(inVarDecl) type = 0; printf("TOKEN: RIGHT_PARENTHESIS\n"); }
+"("                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: ( \n"); }
+","                               { if(inVarDecl) type = 1; printf("TOKEN: SEPERATOR: , \n"); }
+")"                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: ) \n"); }
 ":="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
 "+="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
 "-="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
@@ -116,6 +136,10 @@ EXPR        ({ID}|{INTEGER})([ ]*[\+\-\*\/%][ ]*({ID}|{INTEGER}))*
 "/="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
 "%="                              { printf("TOKEN: ASSIGNMENT OPERATOR\n"); }
 {ID}[ ]*(":="|"+="|"-="|"*="|"/="|"%=")[ ]*{EXPR}";" { 
+    printf("TOKEN: IDENTIFIER: %s\n", {ID});
+    // will have to do scan  along with logic if condition
+    //char id[100];
+    //sscanf(yytext, "%s", id);
     printf("TOKEN: ASSIGNMENT STATEMENT: %s\n",yytext);
 }
 {STRING}                          { printf("TOKEN: STRING: %s\n", yytext); }
