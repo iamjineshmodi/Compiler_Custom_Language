@@ -166,7 +166,7 @@ EXPR     {INTEGER}
         printToken(yytext,"Valid Output Statement");
     } 
 }
-"print"[ ]*"("\".*\".*")"         {
+"print".*         {
     printToken(yytext,"Error: Invalid Output Statement");    
 }
 
@@ -177,7 +177,7 @@ EXPR     {INTEGER}
         printToken(yytext,"Valid Input Statement");
     } 
 }
-"scan"[ ]*"("\".*\".*")"          {
+"scan".*          {
     printToken(yytext,"Error: Invalid Input statement");
 }
 
