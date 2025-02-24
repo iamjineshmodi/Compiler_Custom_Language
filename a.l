@@ -84,6 +84,7 @@ EXPR     {INTEGER}
     printToken("program","Keyword");
     printToken(":","Separator");
 }
+
 "end"[ \t]+"program"              { 
     printToken("end","Keyword");
     printToken("program","Keyword");
@@ -101,7 +102,6 @@ EXPR     {INTEGER}
     printToken("end","Keyword");
     printToken("VarDecl","Keyword");
 }
-
 
 {RELOP}                           {printToken(yytext,"Relational Operator"); }
 "("                               { if(inVarDecl) type = 0; printToken(yytext,"Separator"); }
@@ -229,6 +229,8 @@ int countArguments(char *str) {
     
     return count;
 }
+
+
 //**********************************
 // check this again
 //**********************************
@@ -243,8 +245,37 @@ int checkScan(char* str){
     while (ptr!=l){
         // printf("%c\n",*ptr);
         if(*ptr=='@')atcount++;
-        if(*ptr==',')comma_count++;
+        else if(*ptr==',')comma_count++;
+        else if (*ptr == ' ' || *ptr == '"' ) {
+            ptr++;
+            continue;
+        }
+        else {
+            return 0;
+        }
         ptr++;
+    }
+
+    ptr = f;
+    int atstarts = 0;
+    while (ptr != l){
+        if (*ptr == '@'){
+            if (atstarts == 1){
+                return 0;
+            }
+            atstarts = 1;
+        }
+        if (*ptr == ' '){
+            ptr += 1;
+            continue;
+        }
+        if (*ptr == ','){
+            if (atstarts == 0){
+                return 0;
+            }
+            atstarts = 0;
+        }
+        ptr += 1;
     }
 
     // printf("ehehhe");
@@ -261,6 +292,8 @@ int checkScan(char* str){
     if(atcount>0 && argCount==0)return 0;
     return atcount == argCount;
 }
+
+
 int checkPrint(char* str){
     char* f = strchr(str,'"');
     char* l = strrchr(str,'"');
@@ -279,10 +312,6 @@ int checkPrint(char* str){
     if(atcount>0 && argCount==0)return 0;
     return atcount == argCount;
 }
-
-
-
-
 
 
 
