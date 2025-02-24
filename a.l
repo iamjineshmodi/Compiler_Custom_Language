@@ -128,7 +128,6 @@ EXPR     {INTEGER}
                                     for(int i = 0; yytext[i]; i++) {
                                         if(yytext[i] == '_') underscoreCount++;
                                     }
-                                    
                                     if(underscoreCount > 1) {
                                         printToken(yytext,"Error: invalid identifier");
                                     } else if(!inVarDecl&&CheckKeyword(yytext)) {
@@ -137,11 +136,15 @@ EXPR     {INTEGER}
                                         printToken(yytext,"Error: Keyword is used as an identifier");
                                     }else if(inVarDecl && type==1 && CheckKeyword(yytext)){
                                         printToken(yytext,"Keyword");
+                                    }else if(inVarDecl && type==1 && !CheckKeyword(yytext)){
+                                        printToken(yytext,"Error: Invalid type");
                                     } else {
                                         if(inVarDecl) {
                                             struct symbol *s = lookupSymbol(yytext);
                                             // printf("%s\n",yytext);
-                                            if(s && s->isDefined) {
+                                            if(yytext[0] == '_') {
+                                                printToken(yytext,"Error: invalid identifier");
+                                            } else if(s && s->isDefined) {
                                                 printToken(yytext,"Error: identifier already defined");
                                             } else {
                                                 insertSymbol(yytext, NULL);
