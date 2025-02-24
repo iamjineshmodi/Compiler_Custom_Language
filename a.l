@@ -7,7 +7,7 @@
 
 int inVarDecl = 0;
 int type = 0;
-char* varName = NULL;
+char* varName = NULL; //comment1
 int inLoop = 0; // Track nesting level of control structures
 
 struct symbol {
