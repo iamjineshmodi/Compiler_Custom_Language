@@ -60,7 +60,7 @@ int headerPrinted = 0;
 
 DIGIT       [0-9]
 LETTER      [a-z]
-ID      {LETTER}({LETTER}|{DIGIT}|_)*(\[([a-z]+|[0-9]+)\])?
+ID      ({LETTER}|{DIGIT}|_)*(\[([a-z]+|[0-9]+)\])?
 CHAR        \'(\\?.)\'
 STRING      \"([^\"]*)\"
 OP          [\+ \- \* \/ %]
@@ -125,6 +125,9 @@ EXPR     {INTEGER}
 {ID}                              { 
                                     // printf("ID: %s\n", yytext);
                                     int underscoreCount = 0;
+                                    // if(!islower(yytext[0])) {
+                                    //     printToken(yytext,"Error: invalid identifier");
+                                    // }
                                     for(int i = 0; yytext[i]; i++) {
                                         if(yytext[i] == '_') underscoreCount++;
                                     }
@@ -142,7 +145,7 @@ EXPR     {INTEGER}
                                         if(inVarDecl) {
                                             struct symbol *s = lookupSymbol(yytext);
                                             // printf("%s\n",yytext);
-                                            if(yytext[0] == '_') {
+                                            if(!islower(yytext[0])) {
                                                 printToken(yytext,"Error: invalid identifier");
                                             } else if(s && s->isDefined) {
                                                 printToken(yytext,"Error: identifier already defined");
@@ -159,7 +162,7 @@ EXPR     {INTEGER}
 [(){},;"@]                         { printToken(yytext,"Separator"); }
 .                                  { printToken(yytext,"Lexical Error: Unexpected Character"); }
 
-"print"[ ]*"("\".*\".*");"         {
+"print"[ ]*"("\".*\"",".*");"         {
     if(!checkPrint(yytext)) {
         printToken(yytext,"Error: Invalid Output Statement");
     }else{
@@ -170,7 +173,7 @@ EXPR     {INTEGER}
     printToken(yytext,"Error: Invalid Output Statement");    
 }
 
-"scan"[ ]*"("\".*\".*");"          {
+"scan"[ ]*"("\".*\"",".*");"          {
     if(!checkScan(yytext)) {
         printToken(yytext,"Error: Invalid Input statement");
     }else{
@@ -201,10 +204,12 @@ int countArguments(char *str) {
     int inArg = 0;
     int inBrackets = 0;
     char *p = strchr(str, '"');  
+    char *last = strrchr(str, '"');
     if(!p) return 0;
     p = strchr(p + 1, '"');  
     if(!p) return 0;
     p++;
+    last++;
     int zeroargs = 0;
 
     while(*p) {
