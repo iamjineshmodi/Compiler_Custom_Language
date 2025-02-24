@@ -60,7 +60,7 @@ int headerPrinted = 0;
 
 DIGIT       [0-9]
 LETTER      [a-z]
-ID          {LETTER}({LETTER}|{DIGIT}|_)*
+ID      {LETTER}({LETTER}|{DIGIT}|_)*(\[([a-z]+|[0-9]+)\])?
 CHAR        \'(\\?.)\'
 STRING      \"([^\"]*)\"
 OP          [\+ \- \* \/ %]
