@@ -44,6 +44,18 @@ bool CheckKeyword(const char* str) {
     }
     return false;
 }
+
+void printHeader() {
+    printf("%-40s %-20s\n", "LEXEME", "TOKEN TYPE");
+    printf("%-40s %-20s\n", "------", "----------");
+}
+
+void printToken(const char* lexeme, const char* type) {
+    printf("%-40s %-20s\n", lexeme, type);
+}
+
+int headerPrinted = 0;
+
 %}
 
 DIGIT       [0-9]
@@ -66,49 +78,50 @@ EXPR     {INTEGER}
 
 {COMMENT}                         { }
 {WS}                              { }
+
 "begin"[ \t]+"program:"           { 
-    printf("TOKEN: KEYWORD: begin\n");
-    printf("TOKEN: KEYWORD: program\n");
-    printf("TOKEN: SEPERATOR: :\n");
+    printToken("begin","Keyword");
+    printToken("program","Keyword");
+    printToken(":","Separator");
 }
 "end"[ \t]+"program"              { 
-    printf("TOKEN: KEYWORD: END\n");
-    printf("TOKEN: KEYWORD program\n");
+    printToken("end","Keyword");
+    printToken("program","Keyword");
 }
 
 "begin"[ \t]+"VarDecl:"           { 
     inVarDecl=1; 
-    printf("TOKEN: KEYWORD: begin \n");
-    printf("TOKEN: KEYWORD: VarDecl \n");
-    printf("TOKEN: SEPERATOR: : \n");
+    printToken("begin","Keyword");
+    printToken("VarDecl","Keyword");
+    printToken(":","Separator");
 }
 
 "end"[ \t]+"VarDecl"              { 
     inVarDecl=0; 
-    printf("TOKEN: KEYWORD: end \n");
-    printf("TOKEN: KEYWORD: VarDecl \n");
+    printToken("end","Keyword");
+    printToken("VarDecl","Keyword");
 }
 
 
-{RELOP}                           { printf("TOKEN: RELATIONAL_OPERATOR: %s\n", yytext); }
-"("                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: %s\n", yytext); }
-","                               { if(inVarDecl) type = 1; printf("TOKEN: SEPERATOR: %s\n", yytext); }
-")"                               { if(inVarDecl) type = 0; printf("TOKEN: SEPERATOR: %s\n", yytext); }
-":="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
-"+="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
-"-="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
-"*="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
-"/="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
-"%="                              { printf("TOKEN: ASSIGNMENT OPERATOR %s\n", yytext); }
+{RELOP}                           {printToken(yytext,"Relational Operator"); }
+"("                               { if(inVarDecl) type = 0; printToken(yytext,"Separator"); }
+","                               { if(inVarDecl) type = 1; printToken(yytext,"Separator"); }
+")"                               { if(inVarDecl) type = 0; printToken(yytext,"Separator"); }
+":="                              { printToken(yytext,"Assignment Operator"); }
+"+="                              { printToken(yytext,"Assignment Operator"); }
+"-="                              { printToken(yytext,"Assignment Operator"); }
+"*="                              { printToken(yytext,"Assignment Operator"); }
+"/="                              { printToken(yytext,"Assignment Operator"); }
+"%="                              { printToken(yytext,"Assignment Operator"); }
 
-{STRING}                          { printf("TOKEN: STRING: %s\n", yytext); }
-{CHAR}                            { printf("TOKEN: CHAR: %s\n", yytext); }
-{OP}                              { printf("TOKEN: ARITHMETIC OPERATOR: %s\n", yytext); }
-{INTEGER}                         { printf("TOKEN: INTEGER constant: %s\n", yytext); }
+{STRING}                          { printToken(yytext,"String"); }
+{CHAR}                            { printToken(yytext,"Char"); }
+{OP}                              { printToken(yytext,"Arithmetic Operator"); }
+{INTEGER}                         { printToken(yytext,"Integer constant"); }
 "("[ ]*{DIGIT}+","[ ]*{DIGIT}+")"  { 
-    printf("ERROR: invalid integer constant %s\n", yytext); 
+    printToken(yytext,"Error: invalid integer constant"); 
 }
-{EXPR}                            { printf("TOKEN: EXPRESSION: %s\n", yytext); }
+{EXPR}                            { printToken(yytext,"Expression"); }
 {ID}                              { 
                                     // printf("ID: %s\n", yytext);
                                     int underscoreCount = 0;
@@ -117,45 +130,45 @@ EXPR     {INTEGER}
                                     }
                                     
                                     if(underscoreCount > 1) {
-                                        printf("ERROR: Invalid identifier %s - more than one underscore\n", yytext);
+                                        printToken(yytext,"Error: invalid identifier");
                                     } else if(!inVarDecl&&CheckKeyword(yytext)) {
-                                        printf("TOKEN: KEYWORD %s\n",yytext);
+                                        printToken(yytext,"Keyword");
                                     }else if(inVarDecl && type==0 && CheckKeyword(yytext)){
-                                        printf("ERROR: KEYWORD %s is used as an identifier\n",yytext);
+                                        printToken(yytext,"Error: Keyword is used as an identifier");
                                     }else if(inVarDecl && type==1 && CheckKeyword(yytext)){
-                                        printf("TOKEN: KEYWORD %s\n",yytext);
+                                        printToken(yytext,"Keyword");
                                     } else {
                                         if(inVarDecl) {
                                             struct symbol *s = lookupSymbol(yytext);
                                             // printf("%s\n",yytext);
                                             if(s && s->isDefined) {
-                                                printf("ERROR: Identifier %s already defined\n", yytext);
+                                                printToken(yytext,"Error: identifier already defined");
                                             } else {
                                                 insertSymbol(yytext, NULL);
-                                                printf("TOKEN: IDENTIFIER %s\n", yytext);
+                                                printToken(yytext,"Identifier");
                                             }
                                         } else {
                                             struct symbol *s = lookupSymbol(yytext);
-                                            printf("TOKEN: IDENTIFIER %s\n", yytext);
+                                            printToken(yytext,"Identifier");
                                         }
                                     }
                                 }
-[(){},;"@]                         { printf("TOKEN: SEPARATOR: %s\n", yytext); }
-.                                  { printf("LEXICAL ERROR: Unexpected Character: %s\n", yytext); }
+[(){},;"@]                         { printToken(yytext,"Separator"); }
+.                                  { printToken(yytext,"Lexical Error: Unexpected Character"); }
 
 "print"[ ]*"("\".*\".*");"         {
     if(!checkPrint(yytext)) {
-        printf("TOKEN: Inalid Output Statement %s\n",yytext);
+        printToken(yytext,"Error: Invalid Output Statement");
     }else{
-        printf("TOKEN: Valid Output Statement %s\n",yytext);
+        printToken(yytext,"Valid Output Statement");
     } 
 }
 
 "scan"[ ]*"("\".*\".*");"          {
     if(!checkScan(yytext)) {
-        printf("ERROR: Invalid Input statement \n");
+        printToken(yytext,"Error: Invalid Input statement");
     }else{
-        printf("TOKEN: Valid Input Statement %s\n",yytext);
+        printToken(yytext,"Valid Input Statement");
     } 
 }
 
@@ -168,6 +181,7 @@ int main() {
         return 1;
     }
     yyin = infile;
+    printHeader();
     yylex();
     fclose(infile);
     return 0;
@@ -238,7 +252,7 @@ int checkScan(char* str){
     // printf("argCount %d\n", argCount);
     // printf("comma_count %d\n", comma_count);
     if(comma_count + 1 !=  atcount) {
-        // printf("ERROR: Invalid number of arguments in print/scan statement\n");
+        // printf("Error: Invalid number of arguments in print/scan statement\n");
         return 0;
     }
     // printf("argc %d\n", argCount);
