@@ -186,13 +186,23 @@ EXPR     {INTEGER}
 }
 
 
-"scan"[ ]*"("\".*\"",".*");"          {
+"scan""("\".*\"",".*");"          {
     if(!checkScan(yytext)) {
         printToken(yytext,"Error: Invalid Input statement");
     }else{
         printToken(yytext,"Valid Input Statement");
     } 
 }
+
+
+"scan""("\".*\"","?.*");"    {
+    printToken(yytext, "Error: Invalid Input Statement");
+}
+
+"scan""("\".*\"","?.*")"    {
+    printToken(yytext, "Error: Invalid Input Statement");
+}
+
 %%
 
 int main() {
