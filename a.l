@@ -123,15 +123,27 @@ EXPR     {INTEGER}
 }
 {EXPR}                            { printToken(yytext,"Expression"); }
 {ID}                              { 
-                                    // printf("ID: %s\n", yytext);
                                     int underscoreCount = 0;
                                     // if(!islower(yytext[0])) {
                                     //     printToken(yytext,"Error: invalid identifier");
                                     // }
+                                    int comtainscapitalletter = 0;
                                     for(int i = 0; yytext[i]; i++) {
                                         if(yytext[i] == '_') underscoreCount++;
+                                        if (yytext[i] >= 'A' && yytext[i] <= 'Z'){
+                                            comtainscapitalletter = 1;
+                                        }
                                     }
-                                    if(underscoreCount > 1) {
+                                    if (yytext[0] == '_'){
+                                        printToken(yytext, "Error :invalid identifier");
+                                    }
+                                    else if (yytext[0] >= '1' && yytext[0] <= '9'){
+                                        printToken(yytext, "Error :invalid identifier");
+                                    }
+                                    else if (comtainscapitalletter == 1){
+                                        printToken(yytext, "Error: invalid identifier");
+                                    }
+                                    else if(underscoreCount > 1) {
                                         printToken(yytext,"Error: invalid identifier");
                                     } else if(!inVarDecl&&CheckKeyword(yytext)) {
                                         printToken(yytext,"Keyword");
@@ -162,16 +174,17 @@ EXPR     {INTEGER}
 [(){},;"@]                         { printToken(yytext,"Separator"); }
 .                                  { printToken(yytext,"Lexical Error: Unexpected Character"); }
 
-"print"[ ]*"("\".*\"",".*");"         {
+"print""("\".*\"","?.*");"    {
     if(!checkPrint(yytext)) {
         printToken(yytext,"Error: Invalid Output Statement");
     }else{
         printToken(yytext,"Valid Output Statement");
     } 
 }
-"print".*         {
-    printToken(yytext,"Error: Invalid Output Statement");    
+"print""("\".*\"","?.*")"    {
+    printToken(yytext, "Error: Invalid Output Statement");
 }
+
 
 "scan"[ ]*"("\".*\"",".*");"          {
     if(!checkScan(yytext)) {
@@ -180,10 +193,6 @@ EXPR     {INTEGER}
         printToken(yytext,"Valid Input Statement");
     } 
 }
-"scan".*          {
-    printToken(yytext,"Error: Invalid Input statement");
-}
-
 %%
 
 int main() {
@@ -213,7 +222,6 @@ int countArguments(char *str) {
     int zeroargs = 0;
 
     while(*p) {
-    
         if(*p == '('){
             inBrackets=1;
             if(!inArg){
@@ -309,13 +317,15 @@ int checkScan(char* str){
 
 
 int checkPrint(char* str){
+    //printf("checking print");
     char* f = strchr(str,'"');
     char* l = strrchr(str,'"');
     if(!f || !l || f==l)return 0;
+    //printf("checking print 2");
     int atcount=0;
     char *ptr = f;
     while (ptr!=l){
-        // printf("%c\n",*ptr);
+      //  printf("%c\n",*ptr);
         if(*ptr=='@')atcount++;
         ptr++;
     }
@@ -324,6 +334,7 @@ int checkPrint(char* str){
     int argCount = countArguments(str);
     
     if(atcount>0 && argCount==0)return 0;
+    //printf("atco: %d  arrgc: %d", atcount, argCount);
     return atcount == argCount;
 }
 
