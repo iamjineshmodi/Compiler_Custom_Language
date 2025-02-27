@@ -121,7 +121,6 @@ EXPR     {INTEGER}
 "("[ ]*{DIGIT}+","[ ]*{DIGIT}+")"  { 
     printToken(yytext,"Error: invalid integer constant"); 
 }
-{EXPR}                            { printToken(yytext,"Expression"); }
 {ID}                              { 
                                     int underscoreCount = 0;
                                     // if(!islower(yytext[0])) {
@@ -223,36 +222,31 @@ int countArguments(char *str) {
     int inArg = 0;
     int inBrackets = 0;
     char *p = strchr(str, '"');  
+    if(!p) return 0;
     char *last = strrchr(str, '"');
-    if(!p) return 0;
-    p = strchr(p + 1, '"');  
-    if(!p) return 0;
-    p++;
     last++;
+    while(isspace(*last)||*last==',')last++;
     int zeroargs = 0;
 
-    while(*p) {
-        if(*p == '('){
+    while(*last) {
+        // printf("%c ",*last);
+        if(*last == '('){
             inBrackets=1;
-            if(!inArg){
-                inArg=1;
-            }
-        }else if(*p==')'){
+        }else if(*last==')'){
+            last++;
+            while(isspace(*last))last++;
+            if(*last==')')count++;
+            else if(*last==',')last--;
             inBrackets=0;
-            if(inBrackets==0&&inArg){
-                //count++;
-                inArg=0;
-            }
-        }else if(*p == ',') {
-            zeroargs = 1;
-            if(inArg && inBrackets==0) {
+        }else if(*last == ',') {
+            if(inBrackets==0&&*(last+1)!=')'){
                 count++;
-                inArg = 0;
             }
-        } else if(!isspace(*p) && *p != ')') {
+        } else if(!isspace(*last) && *last != ')') {
+            if(*(last+1)==')'&&!inBrackets)count++;
             inArg = 1;
         }
-        p++;
+        last++;
     }
 
     count += zeroargs;
