@@ -1,0 +1,101 @@
+<Program> -> begin program: VarDecl StmtList end program
+
+VarDecl -> begin VarDecl: VarList end VarDecl
+VarList -> VarDeclStmt VarList | VarDeclStmt
+VarDeclStmt -> (Identifier, Type);
+                       | (DecimalNumber, 10) | (OctalNumber, 8) | (Binary number, 2)
+
+Type -> int | char
+
+StmtList -> Stmt; StmtList | Stmt;
+Stmt -> AssignmentStmt
+      | IOStmt
+      | IfStmt
+      | LoopStmt
+      | BlockStmt
+      | Comment
+
+AssignmentStmt -> Identifier AssignOp Expr;
+AssignOp -> := | += | -= | *= | /= | %=
+
+IOStmt -> print(PrintContent);
+              | scan(ScanContent);
+
+PrintContent -> StringConstant 
+| FormattedText , PrintValues
+FormattedText -> TextWithPlaceholders
+TextWithPlaceholders -> AnyText @ TextWithPlaceholders
+PrintValues -> Identifier, PrintValues 
+          | Identifier 
+          | (FormattedText, PrintValues)
+
+ScanContent -> FormattedText, ScanVars 
+ScanVars -> Identifier, ScanVars 
+       | Identifier
+
+IfStmt -> if (Condition) then BlockStmt  | if (Condition) then BlockStmt else BlockStmt
+
+LoopStmt -> WhileStmt 
+       | ForStmt 
+
+WhileStmt -> while (Condition) BlockStmt
+ForStmt -> for Identifier := Expr to Expr IncDecExpr do BlockStmt 
+IncDecExpr -> inc Expr | dec Expr
+
+BlockStmt -> begin StmtList end;
+
+Expr -> Term 
+           | Expr AddOp Term
+
+Term -> Factor
+| Term MulOp Factor
+
+Factor -> (Expr) 
+  | Number 
+  | Identifier
+
+AddOp -> + | -
+MulOp -> * | / | %
+
+Condition -> Expr RelOp Expr
+RelOp -> = | > | < | >= | <= | <>
+
+Comment -> // AnyText 
+       | /* AnyText */
+
+Identifier -> Lowercase (Lowercase | Digit )* ( _ ) (Lowercase | Digit)* |  Lowercase (Lowercase | Digit )*
+
+
+Lowercase -> a | b | ... | z
+Uppercase -> A | B | ... | Z
+Digit -> 0 | 1 | ... | 9
+
+Number -> DecimalNumber 
+     | OctalNumber 
+     | BinaryNumber
+
+DecimalNumber ->[1-9] [0-9]* | 0
+OctalNumber -> [0][1-7][0-7]* | 0
+BinaryNumber ->[1] [0-1]* | 0
+
+
+
+StringConstant -> "AnyText"
+CharConstant -> ‘AnyChar‘
+
+AnyText -> AnyChar AnyText
+AnyChar -> Lowercase | Uppercase | Digit | SpecialSymbol
+
+SpecialSymbol -> + | - | % | / | * | < | > | = | _ | ( | ) | ; | , | : | { | }
+
+
+
+
+
+
+Change variable names
+If ke end me no semicolon
+Separator add karna hai
+
+
+Will verify this with the examples given by Raghu
