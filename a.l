@@ -231,7 +231,7 @@ int countArguments(char *str) {
     while(*last) {
         // printf("%c ",*last);
         if(*last == '('){
-            inBrackets=1;
+            inBrackets=1
         }else if(*last==')'){
             last++;
             while(isspace(*last))last++;
