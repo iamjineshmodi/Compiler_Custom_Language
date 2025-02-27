@@ -1,0 +1,95 @@
+<Program> -> begin program: VarDecl StmtList end program
+
+VarDecl -> begin VarDecl: VarList end VarDecl
+VarList -> VarDeclStmt ; VarList | VarDeclStmt ;
+VarDeclStmt -> (Identifier, Type)
+
+Identifier -> Lowercase (Lowercase | Digit )* ( _ ) (Lowercase | Digit)* 
+            | Lowercase (Lowercase | Digit )*
+Type -> int | char
+
+StmtList -> Stmt ; StmtList | Stmt;
+Stmt -> AssignmentStmt
+      | IOStmt
+      | IfStmt
+      | LoopStmt
+      | BlockStmt
+      | Comment
+
+AssignmentStmt -> Identifier AssignOp Expr
+                | ArrayDecl
+  
+AssignOp -> := | += | -= | *= | /= | %=
+ArrayDecl -> (Identifier[Numbers], type)
+
+IOStmt -> print(PrintContent)
+        | scan(ScanContent)
+
+PrintContent -> StringConstant 
+              | “ FormattedText ”, PrintValues
+
+FormattedText -> AnyText @ FormattedText
+               | AnyText
+PrintValues -> Identifier, PrintValues 
+          | Identifier
+          | Numbers
+
+Numbers ->  | (DecimalNumber, 10) 
+            | (OctalNumber, 8)
+            | (BinaryNumber, 2)
+
+ScanContent -> “ScanText”, ScanVars 
+ScanText -> @, ScanText 
+          | @ 
+ScanVars -> Identifier, ScanVars 
+          | Identifier
+IfStmt -> if (Condition) BlockStmt  
+        | if (Condition) BlockStmt else BlockStmt
+
+LoopStmt -> WhileStmt 
+         | ForStmt 
+
+Condition -> Expr RelOp Expr
+
+WhileStmt -> while (Condition) BlockStmt
+ForStmt -> for Identifier := Expr to Expr IncDec Expr do BlockStmt 
+IncDec -> inc | dec
+
+BlockStmt -> begin StmtList end;
+
+Expr -> Term 
+      | Expr AddSubOp Term
+
+Term -> Factor
+| Term MulDevOp Factor
+
+Factor -> (Expr) 
+  | Numbers 
+  | Identifier
+
+AddSubOp -> + | -
+MulDivOp -> * | / | %
+
+Condition -> Expr RelOp Expr
+RelOp -> = | > | < | >= | <= | <>
+
+Comment -> // AnyText 
+         | /* AnyText */
+
+Lowercase -> a | b | ... | z
+Uppercase -> A | B | ... | Z
+Digit -> 0 | 1 | ... | 9
+
+DecimalNumber ->[1-9][0-9]* | 0
+OctalNumber -> [1-7][0-7]* | 0
+BinaryNumber ->[1][0-1]* | 0
+
+Seperators -> ( | ) | , | ; | { | } | @ | : | " | ‘ | ’
+
+StringConstant -> "AnyText"
+CharConstant -> ‘AnyChar‘
+
+AnyText -> AnyChar AnyText
+AnyChar -> Lowercase | Uppercase | Digit | SpecialSymbol
+
+SpecialSymbol -> + | - | % | / | * | < | > | = | _ | ( | ) | ; | , | : | { | }
