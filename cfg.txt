@@ -11,8 +11,7 @@ Identifier -> Lowercase (Lowercase | Digit )* ( _ ) (Lowercase | Digit)*
      | Lowercase (Lowercase | Digit )*
 Type -> int | char
 
-
-StmtList -> Stmt; StmtList | Stmt;
+StmtList -> Stmt ; StmtList | Stmt;
 Stmt -> AssignmentStmt
       | IOStmt
       | IfStmt
@@ -27,12 +26,16 @@ IOStmt -> print(PrintContent);
               | scan(ScanContent);
 
 PrintContent -> StringConstant 
-| FormattedText , PrintValues
-FormattedText -> TextWithPlaceholders
-TextWithPlaceholders -> AnyText @ TextWithPlaceholders
+| “ FormattedText ”, PrintValues
+FormattedText -> AnyText @ FormattedText
+		| AnyText
 PrintValues -> Identifier, PrintValues 
-          | Identifier 
-          | (FormattedText, PrintValues)
+          | Identifier
+          | Numbers
+
+Numbers ->  | (DecimalNumber, 10) 
+         | (OctalNumber, 8)
+         | (BinaryNumber, 2)
 
 ScanContent -> FormattedText, ScanVars 
 ScanVars -> Identifier, ScanVars 
