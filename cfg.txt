@@ -16,11 +16,14 @@ Stmt -> AssignmentStmt
       | BlockStmt
       | Comment
 
-AssignmentStmt -> Identifier AssignOp Expr;
+AssignmentStmt -> Identifier AssignOp Expr
+                | ArrayDecl
+  
 AssignOp -> := | += | -= | *= | /= | %=
+ArrayDecl -> (Identifier[Numbers], type)
 
-IOStmt -> print(PrintContent);
-        | scan(ScanContent);
+IOStmt -> print(PrintContent)
+        | scan(ScanContent)
 
 PrintContent -> StringConstant 
               | “ FormattedText ”, PrintValues
@@ -55,7 +58,7 @@ IncDec -> inc | dec
 BlockStmt -> begin StmtList end;
 
 Expr -> Term 
-           | Expr AddSubOp Term
+      | Expr AddSubOp Term
 
 Term -> Factor
 | Term MulDevOp Factor
@@ -80,6 +83,8 @@ Digit -> 0 | 1 | ... | 9
 DecimalNumber ->[1-9][0-9]* | 0
 OctalNumber -> [1-7][0-7]* | 0
 BinaryNumber ->[1][0-1]* | 0
+
+Seperators -> ( | ) | , | ; | { | } | @ | : | " | ‘ | ’
 
 StringConstant -> "AnyText"
 CharConstant -> ‘AnyChar‘
