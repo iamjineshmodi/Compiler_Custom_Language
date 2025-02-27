@@ -1,15 +1,20 @@
 begin program:
 begin VarDecl:
-(number, int);
-(sum, int);
+(_num1, int);
+(print, char);
+(num2, int);
+(sum_tem_123, isnt);
 end VarDecl
-number := (5, 10);
-sum := (0, 10);
-scan("@, ", sum);
-while (number > (0, 10)) do
+if i > (20, 10)
+
 begin
-sum *= number;
-number -= (12, 2);
+
+i :=(1, 10);
+
+i := i - (1, 10);
+
+print("@", arr[0]);
+
 end;
-print("Final sum = @", sum);
+num3 := num1 + num2;
 end program
