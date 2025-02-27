@@ -3,12 +3,12 @@
 VarDecl -> begin VarDecl: VarList end VarDecl
 VarList -> VarDeclStmt ; VarList | VarDeclStmt ;
 VarDeclStmt -> (Identifier, Type)
-                       | (DecimalNumber, 10) 
-           | (OctalNumber, 8)
-           | (BinaryNumber, 2)
+            | (DecimalNumber, 10) 
+            | (OctalNumber, 8)
+            | (BinaryNumber, 2)
 
 Identifier -> Lowercase (Lowercase | Digit )* ( _ ) (Lowercase | Digit)* 
-     | Lowercase (Lowercase | Digit )*
+            | Lowercase (Lowercase | Digit )*
 Type -> int | char
 
 StmtList -> Stmt ; StmtList | Stmt;
@@ -26,27 +26,28 @@ IOStmt -> print(PrintContent);
               | scan(ScanContent);
 
 PrintContent -> StringConstant 
-| “ FormattedText ”, PrintValues
+              | “ FormattedText ”, PrintValues
+
 FormattedText -> AnyText @ FormattedText
-		| AnyText
+		       | AnyText
 PrintValues -> Identifier, PrintValues 
           | Identifier
           | Numbers
 
 Numbers ->  | (DecimalNumber, 10) 
-         | (OctalNumber, 8)
-         | (BinaryNumber, 2)
+            | (OctalNumber, 8)
+            | (BinaryNumber, 2)
 
 ScanContent -> “ScanText”, ScanVars 
 ScanText -> @ ScanText 
 	      | @ 
 ScanVars -> Identifier, ScanVars 
-       | Identifier
+          | Identifier
 IfStmt -> if (Condition) then BlockStmt  
- | if (Condition) then BlockStmt else BlockStmt
+        | if (Condition) then BlockStmt else BlockStmt
 
 LoopStmt -> WhileStmt 
-       | ForStmt 
+         | ForStmt 
 
 Condition -> Expr RelOp Expr
 
@@ -73,7 +74,7 @@ Condition -> Expr RelOp Expr
 RelOp -> = | > | < | >= | <= | <>
 
 Comment -> // AnyText 
-       | /* AnyText */
+         | /* AnyText */
 
 Lowercase -> a | b | ... | z
 Uppercase -> A | B | ... | Z
