@@ -1,9 +1,11 @@
 <Program> -> begin program: VarDecl StmtList end program
 
 VarDecl -> begin VarDecl: VarList end VarDecl
-VarList -> VarDeclStmt VarList | VarDeclStmt
-VarDeclStmt -> (Identifier, Type);
-                       | (DecimalNumber, 10) | (OctalNumber, 8) | (BinaryNumber, 2)
+VarList -> VarDeclStmt ; VarList | VarDeclStmt ;
+VarDeclStmt -> (Identifier, Type)
+                       | (DecimalNumber, 10) 
+           | (OctalNumber, 8)
+           | (BinaryNumber, 2)
 
 Identifier -> Lowercase (Lowercase | Digit )* ( _ ) (Lowercase | Digit)* 
      | Lowercase (Lowercase | Digit )*
@@ -54,7 +56,7 @@ Term -> Factor
 | Term MulDevOp Factor
 
 Factor -> (Expr) 
-  | Number 
+  | Numbers 
   | Identifier
 
 AddSubOp -> + | -
@@ -70,10 +72,6 @@ Lowercase -> a | b | ... | z
 Uppercase -> A | B | ... | Z
 Digit -> 0 | 1 | ... | 9
 
-Number -> DecimalNumber 
-     | OctalNumber 
-     | BinaryNumber
-
 DecimalNumber ->[1-9] [0-9]* | 0
 OctalNumber -> [0][1-7][0-7]* | 0
 BinaryNumber ->[1] [0-1]* | 0
@@ -85,7 +83,6 @@ AnyText -> AnyChar AnyText
 AnyChar -> Lowercase | Uppercase | Digit | SpecialSymbol
 
 SpecialSymbol -> + | - | % | / | * | < | > | = | _ | ( | ) | ; | , | : | { | }
-
 
 
 
