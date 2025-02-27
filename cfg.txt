@@ -29,7 +29,7 @@ PrintContent -> StringConstant
               | “ FormattedText ”, PrintValues
 
 FormattedText -> AnyText @ FormattedText
-		       | AnyText
+               | AnyText
 PrintValues -> Identifier, PrintValues 
           | Identifier
           | Numbers
@@ -40,7 +40,7 @@ Numbers ->  | (DecimalNumber, 10)
 
 ScanContent -> “ScanText”, ScanVars 
 ScanText -> @ ScanText 
-	      | @ 
+          | @ 
 ScanVars -> Identifier, ScanVars 
           | Identifier
 IfStmt -> if (Condition) then BlockStmt  
@@ -91,15 +91,3 @@ AnyText -> AnyChar AnyText
 AnyChar -> Lowercase | Uppercase | Digit | SpecialSymbol
 
 SpecialSymbol -> + | - | % | / | * | < | > | = | _ | ( | ) | ; | , | : | { | }
-
-
-
-
-Change variable names
-Separator add karna hai
-
-
-Will verify this with the examples given by Raghu
-
-Terminals ke capital letters
-
