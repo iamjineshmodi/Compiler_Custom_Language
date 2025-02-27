@@ -34,7 +34,7 @@ PrintValues -> Identifier, PrintValues
           | Identifier
           | Numbers
 
-Numbers ->  | (DecimalNumber, 10) 
+Numbers -> (DecimalNumber, 10) 
             | (OctalNumber, 8)
             | (BinaryNumber, 2)
 
