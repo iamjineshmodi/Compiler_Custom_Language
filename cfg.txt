@@ -37,18 +37,22 @@ Numbers ->  | (DecimalNumber, 10)
          | (OctalNumber, 8)
          | (BinaryNumber, 2)
 
-ScanContent -> FormattedText, ScanVars 
+ScanContent -> “ScanText”, ScanVars 
+ScanText -> @ ScanText 
+	      | @ 
 ScanVars -> Identifier, ScanVars 
        | Identifier
-
-IfStmt -> if (Condition) then BlockStmt  | if (Condition) then BlockStmt else BlockStmt
+IfStmt -> if (Condition) then BlockStmt  
+ | if (Condition) then BlockStmt else BlockStmt
 
 LoopStmt -> WhileStmt 
        | ForStmt 
 
+Condition -> Expr RelOp Expr
+
 WhileStmt -> while (Condition) BlockStmt
-ForStmt -> for Identifier := Expr to Expr IncDecExpr do BlockStmt 
-IncDecExpr -> inc Expr | dec Expr
+ForStmt -> for Identifier := Expr to Expr IncDec Expr do BlockStmt 
+IncDec -> inc | dec
 
 BlockStmt -> begin StmtList end;
 
